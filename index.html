@@ -611,6 +611,91 @@ footer {
 @media (min-width: 601px) and (max-width: 900px) {
   .grid { grid-template-columns: repeat(2, 1fr); }
 }
+
+/* ══════════════════════════════
+   ALL-CARDS MODAL
+══════════════════════════════ */
+#all-opened-overlay {
+  position:fixed; inset:0; z-index:9500;
+  background:rgba(7,9,15,.85); backdrop-filter:blur(8px);
+  display:flex; align-items:center; justify-content:center; padding:20px;
+  opacity:0; visibility:hidden;
+  transition:opacity 1s ease, visibility 1s ease;
+}
+#all-opened-overlay.show { opacity:1; visibility:visible; }
+.all-opened-card {
+  position:relative; width:min(520px,100%);
+  background:linear-gradient(160deg,#0e1220 0%,#141b30 100%);
+  border:1px solid rgba(200,184,138,.28); border-radius:22px;
+  padding:clamp(32px,6vw,56px) clamp(24px,6vw,48px) clamp(28px,5vw,48px);
+  text-align:center;
+  box-shadow:0 0 100px rgba(200,184,138,.1),0 30px 70px rgba(0,0,0,.7);
+  animation:allCardRise .9s cubic-bezier(.22,1,.36,1) both;
+}
+@keyframes allCardRise {
+  from{opacity:0;transform:translateY(50px) scale(.94)}
+  to  {opacity:1;transform:translateY(0)    scale(1)}
+}
+.all-opened-card::before {
+  content:''; position:absolute; top:0; left:50%; transform:translateX(-50%);
+  width:80px; height:2px;
+  background:linear-gradient(90deg,transparent,var(--glow),transparent);
+  border-radius:999px;
+}
+.all-opened-card::after {
+  content:''; position:absolute; inset:0; border-radius:22px;
+  background:
+    radial-gradient(ellipse at 20% 20%,rgba(80,40,160,.1) 0%,transparent 60%),
+    radial-gradient(ellipse at 80% 80%,rgba(180,100,100,.07) 0%,transparent 60%);
+  pointer-events:none;
+}
+.ao-star {
+  font-size:2.2rem; display:block; margin-bottom:18px;
+  animation:aoStarSpin 6s linear infinite;
+}
+@keyframes aoStarSpin {
+  0%,100%{transform:rotate(0deg) scale(1);opacity:.8}
+  50%    {transform:rotate(180deg) scale(1.15);opacity:1}
+}
+.ao-eyebrow {
+  font-size:.64rem; letter-spacing:.3em; text-transform:uppercase;
+  color:var(--glow); opacity:.75; margin-bottom:14px; font-weight:200;
+}
+.ao-title {
+  font-family:'Cormorant Garamond',serif; font-weight:300;
+  font-size:clamp(1.4rem,4.5vw,1.9rem); color:var(--moon);
+  line-height:1.25; margin-bottom:22px;
+}
+.ao-title em{font-style:italic;color:var(--glow)}
+.ao-divider {
+  letter-spacing:.5em; color:var(--glow); opacity:.5;
+  font-size:.8rem; margin-bottom:22px; display:block;
+}
+.ao-body {
+  font-family:'Cormorant Garamond',serif; font-style:italic;
+  font-size:clamp(.9rem,2.4vw,1.08rem); color:var(--text);
+  line-height:1.85; margin-bottom:18px; opacity:.92;
+}
+.ao-secret {
+  font-size:clamp(.78rem,2vw,.92rem);
+  font-family:'Cormorant Garamond',serif; font-style:italic;
+  color:var(--rose); opacity:.85; line-height:1.75; margin-bottom:28px;
+  padding:14px 18px;
+  border:1px solid rgba(196,128,128,.2); border-radius:12px;
+  background:rgba(196,128,128,.05);
+}
+.ao-close-btn {
+  background:transparent; border:1px solid rgba(200,184,138,.35);
+  color:var(--glow); padding:11px 32px; border-radius:999px;
+  font-size:.68rem; letter-spacing:.22em; text-transform:uppercase;
+  font-family:'Jost',sans-serif; font-weight:200; cursor:pointer;
+  transition:border-color .3s,box-shadow .3s,transform .2s;
+}
+.ao-close-btn:hover {
+  border-color:rgba(200,184,138,.7);
+  box-shadow:0 0 22px rgba(200,184,138,.15);
+  transform:translateY(-2px);
+}
 </style>
 </head>
 <body>
@@ -820,6 +905,10 @@ quotes.forEach(q => {
     spawnBurst(card);
     moonEl.classList.add('pulse');
     setTimeout(() => moonEl.classList.remove('pulse'), 700);
+    // Check if all cards opened
+    const total  = document.querySelectorAll('.card').length;
+    const opened = document.querySelectorAll('.card.flipped').length;
+    if (opened === total) setTimeout(showAllOpenedModal, 600);
   });
 
   grid.appendChild(card);
@@ -1012,6 +1101,90 @@ musicBar.addEventListener('click', () => {
     musicBar.querySelector('.music-label').textContent = 'Now playing';
   }
 });
+</script>
+
+<!-- All-cards-opened modal -->
+<div id="all-opened-overlay">
+  <div class="all-opened-card">
+    <span class="ao-star">&#10022;</span>
+    <p class="ao-eyebrow">you opened every single one</p>
+    <h2 class="ao-title">Every dream you carry<br><em>is already on its way.</em></h2>
+    <span class="ao-divider">&middot; &middot; &#10022; &middot; &middot;</span>
+    <p class="ao-body">
+      Every sacrifice you are quietly making right now<br>
+      is not going unnoticed by the universe.<br><br>
+      The late nights, the silent struggles, the moments<br>
+      you chose to keep going when no one was watching &mdash;<br>
+      <em>those are the things that build something real.</em><br><br>
+      Your dreams are not too far. You are simply still<br>
+      becoming the person worthy of receiving them.<br>
+      And you are so much closer than you think.
+    </p>
+    <p class="ao-secret">
+      Even from a distance &mdash; even in silence &mdash;<br>
+      I am always, quietly, in your corner.<br>
+      Rooting for you. Proud of you.<br>
+      <em>Always.</em>
+    </p>
+    <button class="ao-close-btn" id="ao-close-btn">&#10022; &nbsp; carry this with you</button>
+  </div>
+</div>
+
+<script>
+/* ═══════════════════════════════════════
+   ALL-CARDS MODAL TRIGGER
+═══════════════════════════════════════ */
+function showAllOpenedModal() {
+  const overlay = document.getElementById('all-opened-overlay');
+  overlay.classList.add('show');
+  const syms = ['✦','✧','⋆','°','*','·'];
+  for (let i = 0; i < 30; i++) {
+    setTimeout(() => {
+      const p = document.createElement('div');
+      p.className = 'petal';
+      p.textContent = syms[Math.floor(Math.random() * syms.length)];
+      p.style.left = (5 + Math.random() * 90) + 'vw';
+      p.style.bottom = '-40px';
+      p.style.color = Math.random() > .5 ? 'rgba(200,184,138,.7)' : 'rgba(196,128,128,.6)';
+      p.style.animationDuration = (5 + Math.random() * 6) + 's';
+      p.style.fontSize = (.8 + Math.random() * 1.2) + 'rem';
+      document.body.appendChild(p);
+      setTimeout(() => p.remove(), 11000);
+    }, i * 120);
+  }
+  document.getElementById('ao-close-btn').addEventListener('click', () => {
+    overlay.style.transition = 'opacity .8s ease, visibility .8s ease';
+    overlay.classList.remove('show');
+  });
+}
+</script>
+
+<!-- Firebase: log gift open (console only, no UI) -->
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+<script>
+  const firebaseConfig = {
+    apiKey: "AIzaSyASq5Kqx8Lf34-Xcd6BQMfIqAGlhQtVSNY",
+    authDomain: "pc-bee-database.firebaseapp.com",
+    projectId: "pc-bee-database",
+    storageBucket: "pc-bee-database.firebasestorage.app",
+    messagingSenderId: "671705541335",
+    appId: "1:671705541335:web:fc7cd7724249807a251e92",
+    measurementId: "G-Z61VLDR5C1"
+  };
+  firebase.initializeApp(firebaseConfig);
+  const db = firebase.firestore();
+  document.getElementById('enter-btn').addEventListener('click', async () => {
+    const now  = new Date();
+    const date = now.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+    const time = now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+    try {
+      await db.collection('gift_opens').doc(date).set({ date, time }, { merge: true });
+      console.log('Gift opened —', date, 'at', time);
+    } catch (err) {
+      console.error('Firebase log failed:', err);
+    }
+  });
 </script>
 </body>
 </html>
